@@ -1,0 +1,45 @@
+body {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	margin: 0;
+	background-color: #f0f0f0; /* Color de fondo */
+}
+
+.contenedor {
+	display: grid;
+	grid-template-columns: repeat(2, 300px); /* Dos columnas de 300px cada una */
+	gap: 20px; /* Espacio entre cuadros */
+}
+
+.cuadro {
+	width: 300px;
+	height: 300px;
+
+	border-radius: 10px; /* Bordes redondeados */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-decoration: none; /* Quitar subrayado del enlace */
+	color: inherit; /* Heredar color del texto del contenedor padre */
+}
+
+.cuadro:hover {
+	opacity: 0.8; /* Cambiar opacidad al pasar el ratón para indicar interactividad */
+}
+
+.cuadro1 {
+	background-color: #ffd1dc !important; /* Color pastel 1 */
+}
+.cuadro2 {
+	background-color: #add8e6 !important; /* Color pastel 2 */
+}
+
+.cuadro3 {
+	background-color: rgb(216, 195, 156) !important; /* Color pastel 3 */
+}
+
+.cuadro4 {
+	background-color: #98fb98 !important; /* Color pastel 4 */
+}
