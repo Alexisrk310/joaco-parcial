@@ -4,42 +4,36 @@ body {
 	align-items: center;
 	height: 100vh;
 	margin: 0;
-	background-color: #f0f0f0; /* Color de fondo */
+	background-color: #f0f0f0;
+	font-family: 'Arial', sans-serif;
 }
 
-.contenedor {
-	display: grid;
-	grid-template-columns: repeat(2, 300px); /* Dos columnas de 300px cada una */
-	gap: 20px; /* Espacio entre cuadros */
+.calculator-container {
+	text-align: center;
+	padding: 20px;
+	background-color: #fff;
+	border-radius: 10px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.cuadro {
-	width: 300px;
-	height: 300px;
-
-	border-radius: 10px; /* Bordes redondeados */
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	text-decoration: none; /* Quitar subrayado del enlace */
-	color: inherit; /* Heredar color del texto del contenedor padre */
+#input {
+	padding: 10px;
+	margin-bottom: 10px;
+	/* width: 100%; */
 }
 
-.cuadro:hover {
-	opacity: 0.8; /* Cambiar opacidad al pasar el ratón para indicar interactividad */
+button {
+	padding: 10px;
+	background-color: #6ab04c;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
 }
 
-.cuadro1 {
-	background-color: #ffd1dc !important; /* Color pastel 1 */
-}
-.cuadro2 {
-	background-color: #add8e6 !important; /* Color pastel 2 */
-}
-
-.cuadro3 {
-	background-color: rgb(216, 195, 156) !important; /* Color pastel 3 */
-}
-
-.cuadro4 {
-	background-color: #98fb98 !important; /* Color pastel 4 */
+.resultado {
+	margin-top: 10px;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
 }
