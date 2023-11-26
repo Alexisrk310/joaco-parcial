@@ -3,38 +3,55 @@ document.getElementById('calcularBtn').addEventListener('click', validarYCalcula
 function validarYCalcular() {
     const input = document.getElementById('input').value;
     const resultadoElemento = document.getElementById('resultado');
+    const procesoElemento = document.getElementById('proceso');
 
-    if (!input.includes('+') && !input.includes('-') && !input.includes('*') && !input.includes('/')) {
-        resultadoElemento.innerHTML = `<span style="color: red;">Coloque un signo para realizar una operación</span>`;
+    if (!esEntradaValida(input)) {
+        resultadoElemento.innerHTML = `<span style="color: red;">Coloque una operación válida</span>`;
+        procesoElemento.innerHTML = '';  // Limpiar el elemento de proceso
         return;
     }
 
-    if (esEntradaValida(input)) {
-        // Si la entrada es válida, realizar la operación
-        try {
-            const resultado = eval(input);
-            resultadoElemento.innerHTML = `<strong>Resultado:</strong> ${resultado}`;
-        } catch (error) {
+    try {
+        const resultado = eval(input);
+
+        if (isNaN(resultado) || !isFinite(resultado)) {
             resultadoElemento.innerHTML = `<span style="color: red;">Error en la operación</span>`;
+            procesoElemento.innerHTML = '';  // Limpiar el elemento de proceso
+        } else {
+            resultadoElemento.innerHTML = `<strong>Resultado:</strong> ${resultado}`;
+            mostrarPasosEnPantalla(input);
         }
-    } else {
-        resultadoElemento.innerHTML = `<span style="color: red;">Entrada no válida</span>`;
+    } catch (error) {
+        resultadoElemento.innerHTML = `<span style="color: red;">Error en la operación</span>`;
+        procesoElemento.innerHTML = '';  // Limpiar el elemento de proceso
     }
 }
 
 function esEntradaValida(entrada) {
-    // Verificar que la entrada contenga solo dígitos y operadores permitidos
-    const caracteresPermitidos = /^[0-9+\-*\/\s]+$/;
-    if (!caracteresPermitidos.test(entrada)) {
-        return false;
+    // Verificar que haya solo una operación en la entrada y que sea una suma
+    return /^[0-9]+\s*\+\s*[0-9]+$/.test(entrada);
+}
+
+function mostrarPasosEnPantalla(input) {
+    const procesoElemento = document.getElementById('proceso');
+    const pasos = obtenerPasosDetallados(input);
+
+    procesoElemento.innerHTML = `<strong>Proceso:</strong>\n${pasos}`;
+}
+
+function obtenerPasosDetallados(entrada) {
+    const numeros = entrada.match(/\d+/g) || [];
+    let proceso = [];
+
+    let resultadoParcial = 0;
+
+    for (let i = 0; i < numeros.length; i++) {
+        const numero = +numeros[i];
+        resultadoParcial += numero;
+
+        proceso.push(`${numero}\n`);
     }
 
-    // Verificar que la entrada no comience ni termine con un operador
-    const primerCaracter = entrada.charAt(0);
-    const ultimoCaracter = entrada.charAt(entrada.length - 1);
-    if ('+-*/'.includes(primerCaracter) || '+-*/'.includes(ultimoCaracter)) {
-        return false;
-    }
-
-    return true;
+    proceso.push(`<hr/> \n ${resultadoParcial}`);
+    return proceso.join('');
 }
