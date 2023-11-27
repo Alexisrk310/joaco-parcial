@@ -18,7 +18,7 @@ function validarYCalcular() {
         const resultados = obtenerResultados(input);
 
         // Mostrar resultados con animaciones
-        resultadoElemento.innerHTML = `<strong>Resultados:</strong> <strong>${resultados.join(', ')}</strong> `;
+        
         mostrarPasosEnPantalla(input);
     } catch (error) {
         resultadoElemento.innerHTML = `<span class="animate-exit" style="color: red;">Error en la operación</span>`;

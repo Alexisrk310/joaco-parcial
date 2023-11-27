@@ -6,8 +6,12 @@ body {
 	margin: 0;
 	background-color: #f0f0f0;
 	font-family: 'Arial', sans-serif;
+	background-color: #fdfd96;
 }
-
+h3 {
+	padding-top: 0px;
+	margin-top: 0px;
+}
 .calculator-container {
 	text-align: center;
 	padding: 30px;
@@ -53,7 +57,7 @@ button:hover {
 }
 
 .img-logo {
-	width: 400px;
+	width: 200px;
 }
 /* ANIMAR */
 .animate-enter {
