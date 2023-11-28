@@ -6,7 +6,7 @@
 		<style>
 			body {
 				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-				background-color: #176fd3;
+				background-color: rgb(46, 43, 238);
 				margin: 0;
 				display: flex;
 				align-items: center;
@@ -27,7 +27,7 @@
 				width: 100%;
 				height: 60px;
 				font-size: 24px;
-				text-align: center; /* Centrar el texto en el display */
+				text-align: center;
 				padding: 10px;
 				border: none;
 				outline: none;
@@ -38,7 +38,7 @@
 			}
 
 			button {
-				width: 23%; /* Ajuste del ancho para añadir espacio */
+				width: 23%;
 				height: 50px;
 				font-size: 18px;
 				border: none;
@@ -56,7 +56,6 @@
 				background-color: #f0f0f0;
 			}
 
-			/* Ajuste del tamaño del botón igual */
 			button.equals {
 				width: 46%;
 				font-size: 24px;
@@ -65,7 +64,12 @@
 	</head>
 	<body>
 		<div id="calculator">
-			<input type="text" id="display" oninput="handleInput(event)" />
+			<input
+				type="text"
+				id="display"
+				oninput="handleInput(event)"
+				onkeydown="allowAllCharacters(event)"
+			/>
 			<div class="button-row">
 				<button onclick="appendToDisplay('7')">7</button>
 				<button onclick="appendToDisplay('8')">8</button>
@@ -92,7 +96,6 @@
 			</div>
 			<div class="button-row">
 				<button class="equals" onclick="calculateResult()">=</button>
-				<!-- Añadir botón para el signo igual -->
 				<button class="operator" onclick="appendToDisplay('.')">.</button>
 			</div>
 		</div>
@@ -108,20 +111,26 @@
 
 				const currentDisplay = document.getElementById('display').value;
 
-				if (
-					(currentDisplay === '' && value === '0') ||
-					(currentDisplay === '0' && ['+', '-', '*', '/'].includes(value)) ||
-					currentDisplay.endsWith('/0') ||
-					currentDisplay.endsWith('*0') ||
-					currentDisplay.endsWith('+0') ||
-					currentDisplay.endsWith('-0')
-				) {
-					return; // Evitar colocar más de un '0' inicial o un signo antes de '0'
+				if (/^[+\-*\/]/.test(value) && currentDisplay.endsWith('0')) {
+					return; // Evitar colocar un 0 después de un operador
 				}
 
-				// Evitar ceros adicionales al inicio del número
-				if (currentDisplay === '0' && value === '0') {
-					return;
+				if (
+					currentDisplay.endsWith(
+						['+', '-', '*', '/'].map((op) => op + '0').join('|')
+					)
+				) {
+					if (value === '0' || currentDisplay.endsWith('0')) {
+						return; // Evitar colocar otro '0' después de un operador o al final de un número
+					}
+				}
+
+				if (currentDisplay === '0' && !['.'].includes(value)) {
+					return; // Evitar seguir con la calculadora si el primer dígito es '0' y el segundo no es '.'
+				}
+
+				if (currentDisplay.endsWith('0') && !['.'].includes(value)) {
+					return; // Evitar colocar otro número después del '0'
 				}
 
 				document.getElementById('display').value += value;
@@ -145,11 +154,13 @@
 					if (isValidInput) {
 						document.getElementById('display').value = eval(input);
 					} else {
-						document.getElementById('display').value = 'Error';
+						document.getElementById('display').value =
+							'Error: Entrada inválida';
 						isError = true;
 					}
 				} catch (error) {
-					document.getElementById('display').value = 'Error';
+					document.getElementById('display').value =
+						'Error: Operación no válida';
 					isError = true;
 				}
 			}
@@ -160,12 +171,102 @@
 				if (input === 'C' || input === 'c') {
 					clearDisplay();
 				} else if (input) {
-					const allowedInput = /^[\d\(\)\+\-\*\/\.\b]+$/.test(input);
+					// Permitir todos los caracteres válidos
+					document.getElementById('display').value = input;
+					// Verificaciones adicionales
+					checkDivisionByZero(input);
+					checkConsecutiveOperators(input);
+					checkInvalidInput(input);
+					checkOperatorsAtEnds(input);
+					checkSyntax(input);
+					checkDecimalFormat(input);
+				}
+			}
 
-					if (!allowedInput) {
-						event.preventDefault();
-						clearDisplay(); // Limpiar el display si se ingresan caracteres no permitidos
+			function allowAllCharacters(event) {
+				const keyPressed = event.key;
+
+				if (event.shiftKey) {
+					// Permitir caracteres especiales al presionar Shift
+					return;
+				}
+
+				if (keyPressed === 'Enter') {
+					calculateResult();
+				} else if (keyPressed === 'Backspace') {
+					clearLastCharacter();
+					event.preventDefault(); // Evitar la entrada normal del teclado
+				} else {
+					const currentDisplay = document.getElementById('display');
+					const isOperator = /^[+\-*\/]$/.test(keyPressed);
+
+					if (isOperator && currentDisplay.value.endsWith(keyPressed)) {
+						return; // Evitar colocar operadores consecutivos
 					}
+
+					currentDisplay.value += keyPressed;
+
+					// Verificaciones adicionales
+					checkDivisionByZero(currentDisplay.value);
+					checkConsecutiveOperators(currentDisplay.value);
+					checkInvalidInput(currentDisplay.value);
+					checkOperatorsAtEnds(currentDisplay.value);
+					checkSyntax(currentDisplay.value);
+					checkDecimalFormat(currentDisplay.value);
+				}
+
+				event.preventDefault(); // Evitar la entrada normal del teclado
+			}
+
+			function checkDivisionByZero(input) {
+				const dividedByZero = /\/\s*0\b/.test(input);
+				if (dividedByZero) {
+					document.getElementById('display').value = 'Error: División por cero';
+					isError = true;
+				}
+			}
+
+			function checkConsecutiveOperators(input) {
+				const consecutiveOperators = /[+\-*/]{2,}/.test(input);
+				if (consecutiveOperators) {
+					document.getElementById('display').value =
+						'Error: Operadores consecutivos';
+					isError = true;
+				}
+			}
+
+			function checkInvalidInput(input) {
+				const invalidInput = /[^0-9+\-*/.]/.test(input);
+				if (invalidInput) {
+					document.getElementById('display').value = 'Error: Entrada inválida';
+					isError = true;
+				}
+			}
+
+			function checkOperatorsAtEnds(input) {
+				const operatorsAtEnds = /^[+\-*/]|[\+\-*/]$/.test(input);
+				if (operatorsAtEnds) {
+					document.getElementById('display').value =
+						'Error: Operadores al principio o al final';
+					isError = true;
+				}
+			}
+
+			function checkSyntax(input) {
+				try {
+					eval(input); // Evaluar la expresión para verificar la sintaxis
+				} catch (error) {
+					document.getElementById('display').value = 'Error: Error de sintaxis';
+					isError = true;
+				}
+			}
+
+			function checkDecimalFormat(input) {
+				const decimalFormat = /\.\d*\./.test(input);
+				if (decimalFormat) {
+					document.getElementById('display').value =
+						'Error: Formato decimal no válido';
+					isError = true;
 				}
 			}
 		</script>
