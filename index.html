@@ -3,28 +3,171 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="stylesheet" href="indexStyles.css" />
-		<title>Calculadora</title>
+		<style>
+			body {
+				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+				background-color: #f2f2f2;
+				margin: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				height: 100vh;
+			}
+
+			#calculator {
+				background-color: #f2f2f2;
+				border: 1px solid #c0c0c0;
+				border-radius: 8px;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+				overflow: hidden;
+				width: 300px;
+			}
+
+			#display {
+				width: 100%;
+				height: 60px;
+				font-size: 24px;
+				text-align: center; /* Centrar el texto en el display */
+				padding: 10px;
+				border: none;
+				outline: none;
+			}
+
+			.button-row {
+				display: flex;
+			}
+
+			button {
+				width: 23%; /* Ajuste del ancho para añadir espacio */
+				height: 50px;
+				font-size: 18px;
+				border: none;
+				outline: none;
+				cursor: pointer;
+				background-color: #f8f8f8;
+				transition: background-color 0.3s;
+			}
+
+			button:hover {
+				background-color: #e0e0e0;
+			}
+
+			.operator {
+				background-color: #f0f0f0;
+			}
+
+			/* Ajuste del tamaño del botón igual */
+			button.equals {
+				width: 46%;
+				font-size: 24px;
+			}
+		</style>
 	</head>
 	<body>
-		<div class="calculator-container">
-			<h3>SUMA</h3>
-			<img
-				src="https://images.vexels.com/media/users/3/283647/isolated/preview/e836f3282f317e446cc746c5c79b454b-da-a-de-san-valenta-n-ma-s-icono.png"
-				class="img-logo"
-				alt="suma"
-			/>
-			<input
-				type="text"
-				id="input"
-				placeholder="Escribe una operación (ej. 22 + 22)"
-			/>
-
-			<button id="calcularBtn">Calcular en la Página</button>
-			<button id="abrirCalculadoraBtn">Abrir Calculadora</button>
-			<div id="resultado" class="resultado"></div>
-			<div id="proceso" class="proceso"></div>
+		<div id="calculator">
+			<input type="text" id="display" oninput="handleInput(event)" />
+			<div class="button-row">
+				<button onclick="appendToDisplay('7')">7</button>
+				<button onclick="appendToDisplay('8')">8</button>
+				<button onclick="appendToDisplay('9')">9</button>
+				<button class="operator" onclick="appendToDisplay('/')">/</button>
+			</div>
+			<div class="button-row">
+				<button onclick="appendToDisplay('4')">4</button>
+				<button onclick="appendToDisplay('5')">5</button>
+				<button onclick="appendToDisplay('6')">6</button>
+				<button class="operator" onclick="appendToDisplay('*')">*</button>
+			</div>
+			<div class="button-row">
+				<button onclick="appendToDisplay('1')">1</button>
+				<button onclick="appendToDisplay('2')">2</button>
+				<button onclick="appendToDisplay('3')">3</button>
+				<button class="operator" onclick="appendToDisplay('-')">-</button>
+			</div>
+			<div class="button-row">
+				<button onclick="appendToDisplay('0')">0</button>
+				<button onclick="clearLastCharacter()">⌫</button>
+				<button onclick="clearDisplay()">C</button>
+				<button class="operator" onclick="appendToDisplay('+')">+</button>
+			</div>
+			<div class="button-row">
+				<button class="equals" onclick="calculateResult()">=</button>
+				<!-- Añadir botón para el signo igual -->
+				<button class="operator" onclick="appendToDisplay('.')">.</button>
+			</div>
 		</div>
-		<script src="app.js"></script>
+
+		<script>
+			let isError = false;
+
+			function appendToDisplay(value) {
+				if (isError) {
+					clearDisplay();
+					isError = false;
+				}
+
+				const currentDisplay = document.getElementById('display').value;
+
+				if (
+					(currentDisplay === '' && value === '0') ||
+					(currentDisplay === '0' && ['+', '-', '*', '/'].includes(value)) ||
+					currentDisplay.endsWith('/0') ||
+					currentDisplay.endsWith('*0') ||
+					currentDisplay.endsWith('+0') ||
+					currentDisplay.endsWith('-0')
+				) {
+					return; // Evitar colocar más de un '0' inicial o un signo antes de '0'
+				}
+
+				// Evitar ceros adicionales al inicio del número
+				if (currentDisplay === '0' && value === '0') {
+					return;
+				}
+
+				document.getElementById('display').value += value;
+			}
+
+			function clearDisplay() {
+				document.getElementById('display').value = '';
+				isError = false;
+			}
+
+			function clearLastCharacter() {
+				const currentDisplay = document.getElementById('display').value;
+				document.getElementById('display').value = currentDisplay.slice(0, -1);
+			}
+
+			function calculateResult() {
+				try {
+					const input = document.getElementById('display').value;
+					const isValidInput = /^[\d\s\(\)\+\-\*\/\.]+$/.test(input);
+
+					if (isValidInput) {
+						document.getElementById('display').value = eval(input);
+					} else {
+						document.getElementById('display').value = 'Error';
+						isError = true;
+					}
+				} catch (error) {
+					document.getElementById('display').value = 'Error';
+					isError = true;
+				}
+			}
+
+			function handleInput(event) {
+				const input = event.target.value;
+
+				if (input === 'C' || input === 'c') {
+					clearDisplay();
+				} else if (input) {
+					const allowedInput = /^[\d\(\)\+\-\*\/\.\b]+$/.test(input);
+
+					if (!allowedInput) {
+						event.preventDefault();
+						clearDisplay(); // Limpiar el display si se ingresan caracteres no permitidos
+					}
+				}
+			}
+		</script>
 	</body>
 </html>
